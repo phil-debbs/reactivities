@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Extensions;
 using Application.Activities;
 using Application.Core;
 using MediatR;
@@ -33,30 +34,10 @@ namespace API
         {
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
-            });
+            //use the custom AddApplicationServices extention to add the services here.
+            //since it expects a configuration, we pass _config as argument.
+            services.AddApplicationServices(_config);
 
-            //inject dbcontext
-            services.AddDbContext<DataContext>(opt =>
-            {
-                opt.UseSqlite(_config.GetConnectionString("DefaultConnection"));
-            });
-
-            //added to allow CORS access from external urls. 
-            //Add the "Cors" services
-            services.AddCors(opt => {
-                opt.AddPolicy("CorsPolicy", policy =>{
-                    policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
-                });
-            }) ;     
-
-            //add Mediator as a service    
-            services.AddMediatR(typeof(List.Handler).Assembly);
-
-            //add AutoMapper
-            services.AddAutoMapper(typeof(MappingProfiles).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
